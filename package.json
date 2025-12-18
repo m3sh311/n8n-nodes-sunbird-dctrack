@@ -1,0 +1,38 @@
+{
+  "name": "n8n-nodes-sunbird-dctrack",
+  "version": "0.2.4",
+  "description": "n8n community node for Sunbird dcTrack DCIM",
+  "keywords": [
+    "n8n-community-node-package"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/n8n-nodes-sunbird-dctrack",
+  "author": {
+    "name": "Michel Daviller",
+    "email": "michel.daviller@sunbirddcim.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m3sh311/n8n-nodes-sunbird-dctrack.git"
+  },
+  "main": "dist/nodes/DcTrack/DcTrack.node.js",
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "nodes": [
+      "dist/nodes/DcTrack/DcTrack.node.js"
+    ]
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "dependencies": {
+    "n8n-nodes-sunbird-dctrack": "^0.1.0"
+  }
+}

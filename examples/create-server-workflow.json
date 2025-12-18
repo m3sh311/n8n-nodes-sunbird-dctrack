@@ -1,0 +1,88 @@
+{
+  "name": "dcTrack - Create Server Example",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "create",
+        "itemName": "WEB-SERVER-01",
+        "model": "Dell PowerEdge R740",
+        "location": "DC1-RACK-42",
+        "additionalFields": {
+          "serialNumber": "SN123456789",
+          "assetTag": "ASSET-001",
+          "uPosition": 10,
+          "description": "Production web server for main application"
+        }
+      },
+      "id": "dctrack-create",
+      "name": "Create Server in dcTrack",
+      "type": "n8n-nodes-sunbird-dctrack.dcTrack",
+      "typeVersion": 1,
+      "position": [460, 300],
+      "credentials": {
+        "dcTrackApi": {
+          "id": "1",
+          "name": "dcTrack Production API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "get",
+        "itemId": "={{ $json.id }}"
+      },
+      "id": "dctrack-get",
+      "name": "Get Server Details",
+      "type": "n8n-nodes-sunbird-dctrack.dcTrack",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "credentials": {
+        "dcTrackApi": {
+          "id": "1",
+          "name": "dcTrack Production API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Create Server in dcTrack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Server in dcTrack": {
+      "main": [
+        [
+          {
+            "node": "Get Server Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": null,
+  "tags": [],
+  "pinData": {},
+  "meta": {
+    "instanceId": "example"
+  }
+}
