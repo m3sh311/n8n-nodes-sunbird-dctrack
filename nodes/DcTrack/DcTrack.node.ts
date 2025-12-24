@@ -22,10 +22,14 @@ export class DcTrack implements INodeType {
 		inputs: ['main'],
 		outputs: ['main'],
 		credentials: [
-			{
-				name: 'httpBasicAuth',
-				required: true,
-			},
+		  {
+		    name: 'httpBasicAuth',
+		    required: false,
+		  },
+		  {
+		    name: 'dcTrackOAuth2Api',
+		    required: false,
+		  },
 		],
 		properties: [
 			// Base URL configuration
@@ -831,18 +835,68 @@ export class DcTrack implements INodeType {
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
 
-		// Get credentials once
-		const credentials = await this.getCredentials('httpBasicAuth');
+		// Detect which credentials type is being used
+	let authHeaders: IDataObject = {};
+	let useBasicAuth = false;
 
-		for (let i = 0; i < items.length; i++) {
-			try {
-				const baseUrl = this.getNodeParameter('baseUrl', i) as string;
+	try {
+		const basicCreds = await this.getCredentials('httpBasicAuth');
+		if (basicCreds) {
+			useBasicAuth = true;
+		}
+	} catch (error) {
+		// Basic auth not configured, try OAuth2
+	}
 
-				// Prepare auth object
-				const auth = {
-					username: credentials.user as string,
-					password: credentials.password as string,
+	// Get OAuth2 token if needed
+	let oauthToken = '';
+	if (!useBasicAuth) {
+		try {
+			const oauth2Creds = await this.getCredentials('dcTrackOAuth2Api');
+			if (oauth2Creds) {
+				// Get OAuth2 token
+				const tokenUrl = `${oauth2Creds.baseUrl}/oauth/token`;
+				const tokenBody = new URLSearchParams({
+					grant_type: 'client_credentials',
+					scope: oauth2Creds.scope as string,
+					client_id: oauth2Creds.clientId as string,
+					client_secret: oauth2Creds.clientSecret as string,
+				});
+
+				const tokenResponse = await this.helpers.httpRequest({
+					method: 'POST',
+					url: tokenUrl,
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: tokenBody.toString(),
+				});
+
+				oauthToken = tokenResponse.access_token;
+				authHeaders = {
+					'Authorization': `Bearer ${oauthToken}`,
 				};
+			}
+		} catch (error) {
+			throw new NodeOperationError(
+				this.getNode(),
+				'No valid credentials configured. Please add either Basic Auth or OAuth2 credentials.',
+			);
+		}
+	}
+
+	// Get Basic Auth credentials if using Basic Auth
+	const basicAuthCreds = useBasicAuth ? await this.getCredentials('httpBasicAuth') : null;
+
+	for (let i = 0; i < items.length; i++) {
+		try {
+			const baseUrl = this.getNodeParameter('baseUrl', i) as string;
+
+			// Prepare auth object for Basic Auth
+			const auth = useBasicAuth && basicAuthCreds ? {
+				username: basicAuthCreds.user as string,
+				password: basicAuthCreds.password as string,
+			} : undefined;
 
 				// ITEM OPERATIONS
 				if (resource === 'item') {
