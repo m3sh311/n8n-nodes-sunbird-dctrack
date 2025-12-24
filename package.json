@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-sunbird-dctrack",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "n8n community node for Sunbird dcTrack DCIM",
   "keywords": [
     "n8n-community-node-package"
@@ -24,7 +24,7 @@
     "nodes": [
       "dist/nodes/DcTrack/DcTrack.node.js"
     ]
-},
+  },
   "files": [
     "dist"
   ],
