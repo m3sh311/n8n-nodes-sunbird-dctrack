@@ -27,14 +27,29 @@ npm install n8n-nodes-sunbird-dctrack
 
 ## Authentication
 
-**Currently Supported:**
+### ✅ Basic Authentication
+Username and password authentication using n8n's standard Basic Auth credentials.
 
-- ✅ **Basic Authentication** - Username and password (tested and production ready)
+**Setup:**
+1. Add Credential → **Basic Auth**
+2. Enter your dcTrack username and password
+3. Set allowed domain to your dcTrack instance
 
-**Note:** This node currently only supports Basic Authentication. Token-based and OAuth 2.0 authentication methods are not implemented at this time.
+### ✅ OAuth 2.0 (Client Credentials)
+Token-based authentication using Client ID and Client Secret.
 
-Use your dcTrack username and password with n8n's standard Basic Auth credentials.
+**Setup:**
+1. In dcTrack: Generate Client ID and Client Secret (Administration → User Management)
+2. In n8n: Add Credential → **dcTrack OAuth2 API**
+3. Enter:
+   - Base URL: Your dcTrack instance URL
+   - Client ID: From dcTrack
+   - Client Secret: From dcTrack
+   - Scope: `user_permissions`
 
+**Note:** Ensure your OAuth2 user has appropriate permissions (Create, Read, Update, Delete) for the operations you want to perform.
+
+**Token Management:** Access tokens are automatically generated and refreshed (valid for 1 hour).
 ## Operations
 
 ### Items (Equipment & Assets)
@@ -258,6 +273,15 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [ ] Capacity planning operations
 
 ## Version History
+
+### 0.3.2 (Current)
+- ✅ OAuth2 Client Credentials authentication support
+- ✅ Automatic token generation and management
+- ✅ Single authentication method selector
+- ✅ Tested with both Basic Auth and OAuth2
+
+### 0.3.0
+- 🔧 OAuth2 implementation (initial)
 
 ### 0.2.3 (Current)
 - ✅ Basic Authentication support
