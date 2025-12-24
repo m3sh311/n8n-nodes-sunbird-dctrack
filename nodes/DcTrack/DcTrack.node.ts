@@ -926,9 +926,10 @@ export class DcTrack implements INodeType {
 							},
 							body: body,
 							json: true,
-							auth: auth,
+							...(auth && { auth }),
 							headers: {
 								'Content-Type': 'application/json',
+								...authHeaders,
 							},
 						});
 
@@ -943,10 +944,13 @@ export class DcTrack implements INodeType {
 							const itemName = this.getNodeParameter('itemNameGet', i) as string;
 
 							const responseData = await this.helpers.httpRequest({
-								method: 'GET',
-								url: `${baseUrl}/api/v2/dcimoperations/search/items/${encodeURIComponent(itemName)}`,
-								json: true,
-								auth: auth,
+							  method: 'GET',
+							  url: `${baseUrl}/api/v2/dcimoperations/search/items/${encodeURIComponent(itemName)}`,
+							  json: true,
+							  ...(auth && { auth }),
+							  headers: {
+							    ...authHeaders,
+							  },
 							});
 
 							returnData.push(responseData as IDataObject);
@@ -954,10 +958,13 @@ export class DcTrack implements INodeType {
 							const itemId = this.getNodeParameter('itemIdGet', i) as string;
 
 							const responseData = await this.helpers.httpRequest({
-								method: 'GET',
-								url: `${baseUrl}/api/v2/dcimoperations/items/${itemId}`,
-								json: true,
-								auth: auth,
+							  method: 'GET',
+							  url: `${baseUrl}/api/v2/dcimoperations/items/${itemId}`,
+							  json: true,
+							  ...(auth && { auth }),
+							  headers: {
+							    ...authHeaders,
+							  },
 							});
 
 							returnData.push(responseData as IDataObject);
@@ -977,9 +984,10 @@ export class DcTrack implements INodeType {
 							},
 							body: updateFields,
 							json: true,
-							auth: auth,
+							...(auth && { auth }),
 							headers: {
 								'Content-Type': 'application/json',
+								...authHeaders,
 							},
 						});
 
@@ -1007,9 +1015,10 @@ export class DcTrack implements INodeType {
 							},
 							body: moveBody,
 							json: true,
-							auth: auth,
+							...(auth && { auth }),
 							headers: {
 								'Content-Type': 'application/json',
+								...authHeaders,
 							},
 						});
 
@@ -1061,9 +1070,10 @@ export class DcTrack implements INodeType {
 							},
 							body: searchBody,
 							json: true,
-							auth: auth,
+							...(auth && { auth }),
 							headers: {
 								'Content-Type': 'application/json',
+								...authHeaders,
 							},
 						});
 
@@ -1074,16 +1084,19 @@ export class DcTrack implements INodeType {
 					if (operation === 'delete') {
 						const itemId = this.getNodeParameter('itemIdDelete', i) as string;
 						const proceedOnWarning = this.getNodeParameter('proceedOnWarning', i) as boolean;
-
 						await this.helpers.httpRequest({
-							method: 'DELETE',
-							url: `${baseUrl}/api/v2/dcimoperations/items/${itemId}`,
-							qs: {
-								proceedonwarning: proceedOnWarning,
-							},
-							json: true,
-							auth: auth,
+						  method: 'DELETE',
+						  url: `${baseUrl}/api/v2/dcimoperations/items/${itemId}`,
+						  qs: {
+						    proceedonwarning: proceedOnWarning,
+						  },
+						  json: true,
+						  ...(auth && { auth }),
+						  headers: {
+						  ...authHeaders,
+						  },
 						});
+						
 
 						returnData.push({ success: true, itemId, deleted: true });
 					}
@@ -1146,9 +1159,10 @@ export class DcTrack implements INodeType {
 							url: `${baseUrl}/api/v2/connections/dataconnections`,
 							body: body,
 							json: true,
-							auth: auth,
+							...(auth && { auth }),
 							headers: {
 								'Content-Type': 'application/json',
+								...authHeaders,
 							},
 						});
 
