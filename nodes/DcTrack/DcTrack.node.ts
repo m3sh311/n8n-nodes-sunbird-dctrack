@@ -22,16 +22,44 @@ export class DcTrack implements INodeType {
 		inputs: ['main'],
 		outputs: ['main'],
 		credentials: [
-		  {
-		    name: 'httpBasicAuth',
-		    required: false,
-		  },
-		  {
-		    name: 'dcTrackOAuth2Api',
-		    required: false,
-		  },
-		],
+	{
+		name: 'httpBasicAuth',
+		required: false,
+		displayOptions: {
+			show: {
+				authentication: ['basicAuth'],
+			},
+		},
+	},
+	{
+		name: 'dcTrackOAuth2Api',
+		required: false,
+		displayOptions: {
+			show: {
+				authentication: ['oauth2'],
+			},
+		},
+	},
+],
 		properties: [
+			// Authentication type selector
+	{
+		displayName: 'Authentication',
+		name: 'authentication',
+		type: 'options',
+		options: [
+			{
+				name: 'Basic Auth',
+				value: 'basicAuth',
+			},
+			{
+				name: 'OAuth2',
+				value: 'oauth2',
+			},
+		],
+		default: 'basicAuth',
+		description: 'Authentication method to use',
+	},
 			// Base URL configuration
 			{
 				displayName: 'Base URL',
