@@ -63,6 +63,18 @@ Token-based authentication using Client ID and Client Secret.
 | **Search** | ✅ Production | Advanced search with filters |
 | **Delete** | ✅ Production | Delete an item |
 
+### Models (Equipment Models)
+
+| Operation | Status | Description |
+|-----------|--------|-------------|
+| **Create** | ✅ Production | Create a new equipment model with specifications |
+
+**Note on Units**: Dimensions (Height, Width, Depth) and Weight use the units configured for your dcTrack user:
+- **US Units** (default): inches and pounds (lbs)
+- **Metric Units**: millimeters and kilograms
+
+Check your user preferences in dcTrack: Administration → User Management → User Settings.
+
 ### Connections
 
 | Operation | Status | Description |
@@ -80,7 +92,7 @@ Token-based authentication using Client ID and Client Secret.
 
 - **n8n version**: 0.180.0 or higher
 - **dcTrack API**: v2
-- **Tested on**: dcTrack 6.x, 7.x
+- **Tested on**: dcTrack 9.2, 9.3
 
 ## Configuration
 
@@ -186,6 +198,102 @@ The Search operation supports filtering by:
 
 You can select which fields to return in the results.
 
+## Model Creation
+
+The Model resource allows you to create equipment models with detailed specifications.
+
+### Basic Fields
+
+- **Model Name** (required): Name of the model (e.g., "R750")
+- **Make** (required): Manufacturer (e.g., "Dell")
+- **Class** (required): Device, Rack, Cabinet, Floor PDU, Overhead PDU, Passive
+- **Subclass**: Standard, Blade Chassis, etc.
+- **Form Factor** (required): Fixed, Chassis, Blade, Module
+- **Mounting**: Rackable, Non-Rackable, Zero-U
+- **RU Height** (required): Height in rack units
+
+### Dimensions
+
+**Important**: Units depend on your dcTrack user configuration (US or Metric)
+
+- **Height**: In inches (US) or millimeters (Metric)
+- **Width**: In inches (US) or millimeters (Metric)
+- **Depth**: In inches (US) or millimeters (Metric)
+- **Weight**: In pounds/lbs (US) or kilograms (Metric)
+
+**Example for 2U Server (US Units)**:
+```
+RU Height: 2
+Height: 3.43 inches
+Width: 17.09 inches
+Depth: 27.8 inches
+Weight: 55 lbs
+```
+
+### Power Configuration
+
+- **Original Power**: Power rating in watts
+- **Potential Power**: Maximum power capacity
+- **BTU per Hour**: Heat output
+- **Power Supply Redundancy**: N, N+1, N+N, 2N
+- **Power Supply Slot Count**: Number of power supply slots
+- **Auto Power Budget**: Enable/disable automatic power budgeting
+
+### Advanced Fields (JSON)
+
+For complex models, you can specify ports and slots using JSON:
+
+**Power Ports**:
+```json
+[
+  {
+    "portName": "PS1",
+    "portSubclass": "Power Supply",
+    "index": 0,
+    "connector": "IEC-320-C14",
+    "face": "Back",
+    "phase": "Single Phase (3-Wire)",
+    "volts": "240",
+    "psPowerFactor": 1.0,
+    "psNameplateWatts": 2900,
+    "psBudgetWatts": 1740
+  }
+]
+```
+
+**Data Ports**:
+```json
+[
+  {
+    "portName": "Eth01",
+    "portSubclass": "Physical",
+    "index": 0,
+    "connector": "RJ45",
+    "face": "Back",
+    "media": "Twisted Pair",
+    "dataRate": "1000 Base-T",
+    "protocol": "Ethernet/IP"
+  }
+]
+```
+
+**Chassis Faces** (for chassis models):
+```json
+[
+  {
+    "face": "Front",
+    "slotCount": 14,
+    "slotVertical": true,
+    "allowSpanning": false,
+    "chassisSlots": [
+      {"slotNumber": 1, "slotLabel": "1", "anchor": false}
+    ]
+  }
+]
+```
+
+Refer to dcTrack API documentation for complete field specifications.
+
 ## Error Handling
 
 Common errors and solutions:
@@ -273,6 +381,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [ ] Capacity planning operations
 
 ## Version History
+
+### 0.5.1 (Current)
+- ✅ Model resource with Create operation
+- ✅ Support for dimensions, power configuration, and advanced fields
+- ✅ JSON support for Power Ports, Data Ports, Chassis Faces, and Aliases
+- ✅ Configurable units (US/Metric) based on user settings
 
 ### 0.3.2 (Current)
 - ✅ OAuth2 Client Credentials authentication support
