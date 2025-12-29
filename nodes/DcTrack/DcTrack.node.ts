@@ -22,44 +22,44 @@ export class DcTrack implements INodeType {
 		inputs: ['main'],
 		outputs: ['main'],
 		credentials: [
-	{
-		name: 'httpBasicAuth',
-		required: false,
-		displayOptions: {
-			show: {
-				authentication: ['basicAuth'],
-			},
-		},
-	},
-	{
-		name: 'dcTrackOAuth2Api',
-		required: false,
-		displayOptions: {
-			show: {
-				authentication: ['oauth2'],
-			},
-		},
-	},
-],
-		properties: [
-			// Authentication type selector
-	{
-		displayName: 'Authentication',
-		name: 'authentication',
-		type: 'options',
-		options: [
 			{
-				name: 'Basic Auth',
-				value: 'basicAuth',
+				name: 'httpBasicAuth',
+				required: false,
+				displayOptions: {
+					show: {
+						authentication: ['basicAuth'],
+					},
+				},
 			},
 			{
-				name: 'OAuth2',
-				value: 'oauth2',
+				name: 'dcTrackOAuth2Api',
+				required: false,
+				displayOptions: {
+					show: {
+						authentication: ['oauth2'],
+					},
+				},
 			},
 		],
-		default: 'basicAuth',
-		description: 'Authentication method to use',
-	},
+		properties: [
+			// Authentication type selector
+			{
+				displayName: 'Authentication',
+				name: 'authentication',
+				type: 'options',
+				options: [
+					{
+						name: 'Basic Auth',
+						value: 'basicAuth',
+					},
+					{
+						name: 'OAuth2',
+						value: 'oauth2',
+					},
+				],
+				default: 'basicAuth',
+				description: 'Authentication method to use',
+			},
 			// Base URL configuration
 			{
 				displayName: 'Base URL',
@@ -82,6 +82,11 @@ export class DcTrack implements INodeType {
 						name: 'Item',
 						value: 'item',
 						description: 'Manage equipment and assets',
+					},
+					{
+						name: 'Model',
+						value: 'model',
+						description: 'Manage equipment models',
 					},
 					{
 						name: 'Connection',
@@ -143,7 +148,394 @@ export class DcTrack implements INodeType {
 				],
 				default: 'create',
 			},
+			// MODEL OPERATIONS
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['model'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a new model',
+						action: 'Create a model',
+					},
+				],
+				default: 'create',
+			},
+			// CREATE MODEL - BASIC FIELDS
+			{
+				displayName: 'Model Name',
+				name: 'modelName',
+				type: 'string',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				default: '',
+				required: true,
+				placeholder: 'R750',
+				description: 'Name of the model',
+			},
+			{
+				displayName: 'Make',
+				name: 'modelMake',
+				type: 'string',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				default: '',
+				required: true,
+				placeholder: 'Dell',
+				description: 'Manufacturer/make',
+			},
+			{
+				displayName: 'Class',
+				name: 'modelClass',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{ name: 'Device', value: 'Device' },
+					{ name: 'Rack', value: 'Rack' },
+					{ name: 'Cabinet', value: 'Cabinet' },
+					{ name: 'Floor PDU', value: 'Floor PDU' },
+					{ name: 'Overhead PDU', value: 'Overhead PDU' },
+					{ name: 'Passive', value: 'Passive' },
+				],
+				default: 'Device',
+				required: true,
+				description: 'Class of the model',
+			},
+			{
+				displayName: 'Subclass',
+				name: 'modelSubclass',
+				type: 'string',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				default: 'Standard',
+				placeholder: 'Standard, Blade Chassis, etc.',
+				description: 'Subclass of the model',
+			},
+			{
+				displayName: 'Form Factor',
+				name: 'formFactor',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{ name: 'Fixed', value: 'Fixed' },
+					{ name: 'Chassis', value: 'Chassis' },
+					{ name: 'Blade', value: 'Blade' },
+					{ name: 'Module', value: 'Module' },
+				],
+				default: 'Fixed',
+				required: true,
+				description: 'Form factor of the equipment',
+			},
+			{
+				displayName: 'Mounting',
+				name: 'mounting',
+				type: 'options',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{ name: 'Rackable', value: 'Rackable' },
+					{ name: 'Non-Rackable', value: 'Non-Rackable' },
+					{ name: 'Zero-U', value: 'Zero-U' },
+				],
+				default: 'Rackable',
+				description: 'Mounting type',
+			},
+			{
+				displayName: 'RU Height',
+				name: 'ruHeight',
+				type: 'number',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				default: 1,
+				required: true,
+				description: 'Height in rack units (U)',
+			},
 
+// DIMENSIONS
+			{
+				displayName: 'Dimensions',
+				name: 'dimensionsCollection',
+				type: 'collection',
+				placeholder: 'Add Dimension',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Height (mm)',
+						name: 'dimHeight',
+						type: 'number',
+						default: 0,
+						description: 'Height in millimeters',
+					},
+					{
+						displayName: 'Width (mm)',
+						name: 'dimWidth',
+						type: 'number',
+						default: 0,
+						description: 'Width in millimeters',
+					},
+					{
+						displayName: 'Depth (mm)',
+						name: 'dimDepth',
+						type: 'number',
+						default: 0,
+						description: 'Depth in millimeters',
+					},
+					{
+						displayName: 'Weight (lbs)',
+						name: 'weight',
+						type: 'number',
+						default: 0,
+						description: 'Weight in pounds',
+					},
+				],
+			},
+
+// POWER
+			{
+				displayName: 'Power Configuration',
+				name: 'powerCollection',
+				type: 'collection',
+				placeholder: 'Add Power Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Original Power (Watts)',
+						name: 'originalPower',
+						type: 'number',
+						default: 0,
+						description: 'Original power rating in watts',
+					},
+					{
+						displayName: 'Potential Power (Watts)',
+						name: 'potentialPower',
+						type: 'number',
+						default: 0,
+						description: 'Potential power in watts',
+					},
+					{
+						displayName: 'BTU per Hour',
+						name: 'btuPerHour',
+						type: 'number',
+						default: 0,
+						description: 'BTU per hour',
+					},
+					{
+						displayName: 'Power Supply Redundancy',
+						name: 'psRedundancy',
+						type: 'options',
+						options: [
+							{ name: 'N', value: 'N' },
+							{ name: 'N+1', value: 'N+1' },
+							{ name: 'N+N', value: 'N+N' },
+							{ name: '2N', value: '2N' },
+						],
+						default: 'N',
+						description: 'Power supply redundancy',
+					},
+					{
+						displayName: 'Power Supply Slot Count',
+						name: 'powerSupplySlotCount',
+						type: 'number',
+						default: 1,
+						description: 'Number of power supply slots',
+					},
+					{
+						displayName: 'Auto Power Budget',
+						name: 'autoPowerBudget',
+						type: 'boolean',
+						default: false,
+						description: 'Enable auto power budget',
+					},
+					{
+						displayName: 'Budget Status',
+						name: 'budgetStatus',
+						type: 'string',
+						default: 'Default Budget',
+						description: 'Budget status',
+					},
+				],
+			},
+
+// ADVANCED FIELDS
+			{
+				displayName: 'Advanced Fields',
+				name: 'advancedFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Part Number',
+						name: 'partNumber',
+						type: 'string',
+						default: '',
+						description: 'Part number',
+					},
+					{
+						displayName: 'Front Image',
+						name: 'frontImage',
+						type: 'boolean',
+						default: false,
+						description: 'Has front image',
+					},
+					{
+						displayName: 'Rear Image',
+						name: 'rearImage',
+						type: 'boolean',
+						default: false,
+						description: 'Has rear image',
+					},
+					{
+						displayName: 'Company Standard',
+						name: 'companyStandard',
+						type: 'boolean',
+						default: false,
+						description: 'Is company standard',
+					},
+				],
+			},
+
+// PORTS AND SLOTS (JSON)
+			{
+				displayName: 'Power Ports (JSON)',
+				name: 'powerPortsJson',
+				type: 'json',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				default: '[]',
+				placeholder: '[{"portName": "PS1", "portSubclass": "Power Supply", "connector": "IEC-320-C14"}]',
+				description: 'Power ports configuration as JSON array',
+			},
+			{
+				displayName: 'Data Ports (JSON)',
+				name: 'dataPortsJson',
+				type: 'json',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				default: '[]',
+				placeholder: '[{"portName": "Eth01", "portSubclass": "Physical", "connector": "RJ45"}]',
+				description: 'Data ports configuration as JSON array',
+			},
+			{
+				displayName: 'Chassis Faces (JSON)',
+				name: 'chassisFacesJson',
+				type: 'json',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				default: '[]',
+				placeholder: '[{"face": "Front", "slotCount": 14, "chassisSlots": [...]}]',
+				description: 'Chassis faces and slots configuration (for chassis models)',
+			},
+			{
+				displayName: 'Aliases (JSON)',
+				name: 'aliasesJson',
+				type: 'json',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				default: '[]',
+				placeholder: '["Alias 1", "Alias 2"]',
+				description: 'Model aliases as JSON array',
+			},
+
+// OPTIONS
+			{
+				displayName: 'Return Details',
+				name: 'returnDetails',
+				type: 'boolean',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				default: true,
+				description: 'Whether to return all model fields in response',
+			},
+			{
+				displayName: 'Proceed On Warning',
+				name: 'proceedOnWarning',
+				type: 'boolean',
+				displayOptions: {
+					show: {
+						resource: ['model'],
+						operation: ['create'],
+					},
+				},
+				default: false,
+				description: 'Whether to proceed if there are business warnings',
+			},
 			// CREATE ITEM FIELDS
 			{
 				displayName: 'Item Name',
@@ -864,67 +1256,67 @@ export class DcTrack implements INodeType {
 		const operation = this.getNodeParameter('operation', 0) as string;
 
 		// Detect which credentials type is being used
-	let authHeaders: IDataObject = {};
-	let useBasicAuth = false;
+		let authHeaders: IDataObject = {};
+		let useBasicAuth = false;
 
-	try {
-		const basicCreds = await this.getCredentials('httpBasicAuth');
-		if (basicCreds) {
-			useBasicAuth = true;
-		}
-	} catch (error) {
-		// Basic auth not configured, try OAuth2
-	}
-
-	// Get OAuth2 token if needed
-	let oauthToken = '';
-	if (!useBasicAuth) {
 		try {
-			const oauth2Creds = await this.getCredentials('dcTrackOAuth2Api');
-			if (oauth2Creds) {
-				// Get OAuth2 token
-				const tokenUrl = `${oauth2Creds.baseUrl}/oauth/token`;
-				const tokenBody = new URLSearchParams({
-					grant_type: 'client_credentials',
-					scope: oauth2Creds.scope as string,
-					client_id: oauth2Creds.clientId as string,
-					client_secret: oauth2Creds.clientSecret as string,
-				});
-
-				const tokenResponse = await this.helpers.httpRequest({
-					method: 'POST',
-					url: tokenUrl,
-					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded',
-					},
-					body: tokenBody.toString(),
-				});
-
-				oauthToken = tokenResponse.access_token;
-				authHeaders = {
-					'Authorization': `Bearer ${oauthToken}`,
-				};
+			const basicCreds = await this.getCredentials('httpBasicAuth');
+			if (basicCreds) {
+				useBasicAuth = true;
 			}
 		} catch (error) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'No valid credentials configured. Please add either Basic Auth or OAuth2 credentials.',
-			);
+		// Basic auth not configured, try OAuth2
 		}
-	}
+
+	// Get OAuth2 token if needed
+		let oauthToken = '';
+		if (!useBasicAuth) {
+			try {
+				const oauth2Creds = await this.getCredentials('dcTrackOAuth2Api');
+				if (oauth2Creds) {
+				// Get OAuth2 token
+					const tokenUrl = `${oauth2Creds.baseUrl}/oauth/token`;
+					const tokenBody = new URLSearchParams({
+						grant_type: 'client_credentials',
+						scope: oauth2Creds.scope as string,
+						client_id: oauth2Creds.clientId as string,
+						client_secret: oauth2Creds.clientSecret as string,
+					});
+
+					const tokenResponse = await this.helpers.httpRequest({
+						method: 'POST',
+						url: tokenUrl,
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded',
+						},
+						body: tokenBody.toString(),
+					});
+
+					oauthToken = tokenResponse.access_token;
+					authHeaders = {
+						'Authorization': `Bearer ${oauthToken}`,
+					};
+				}
+			} catch (error) {
+				throw new NodeOperationError(
+					this.getNode(),
+					'No valid credentials configured. Please add either Basic Auth or OAuth2 credentials.',
+					);
+			}
+		}
 
 	// Get Basic Auth credentials if using Basic Auth
-	const basicAuthCreds = useBasicAuth ? await this.getCredentials('httpBasicAuth') : null;
+		const basicAuthCreds = useBasicAuth ? await this.getCredentials('httpBasicAuth') : null;
 
-	for (let i = 0; i < items.length; i++) {
-		try {
-			const baseUrl = this.getNodeParameter('baseUrl', i) as string;
+		for (let i = 0; i < items.length; i++) {
+			try {
+				const baseUrl = this.getNodeParameter('baseUrl', i) as string;
 
 			// Prepare auth object for Basic Auth
-			const auth = useBasicAuth && basicAuthCreds ? {
-				username: basicAuthCreds.user as string,
-				password: basicAuthCreds.password as string,
-			} : undefined;
+				const auth = useBasicAuth && basicAuthCreds ? {
+					username: basicAuthCreds.user as string,
+					password: basicAuthCreds.password as string,
+				} : undefined;
 
 				// ITEM OPERATIONS
 				if (resource === 'item') {
@@ -972,13 +1364,13 @@ export class DcTrack implements INodeType {
 							const itemName = this.getNodeParameter('itemNameGet', i) as string;
 
 							const responseData = await this.helpers.httpRequest({
-							  method: 'GET',
-							  url: `${baseUrl}/api/v2/dcimoperations/search/items/${encodeURIComponent(itemName)}`,
-							  json: true,
-							  ...(auth && { auth }),
-							  headers: {
-							    ...authHeaders,
-							  },
+								method: 'GET',
+								url: `${baseUrl}/api/v2/dcimoperations/search/items/${encodeURIComponent(itemName)}`,
+								json: true,
+								...(auth && { auth }),
+								headers: {
+									...authHeaders,
+								},
 							});
 
 							returnData.push(responseData as IDataObject);
@@ -986,13 +1378,13 @@ export class DcTrack implements INodeType {
 							const itemId = this.getNodeParameter('itemIdGet', i) as string;
 
 							const responseData = await this.helpers.httpRequest({
-							  method: 'GET',
-							  url: `${baseUrl}/api/v2/dcimoperations/items/${itemId}`,
-							  json: true,
-							  ...(auth && { auth }),
-							  headers: {
-							    ...authHeaders,
-							  },
+								method: 'GET',
+								url: `${baseUrl}/api/v2/dcimoperations/items/${itemId}`,
+								json: true,
+								...(auth && { auth }),
+								headers: {
+									...authHeaders,
+								},
 							});
 
 							returnData.push(responseData as IDataObject);
@@ -1113,16 +1505,16 @@ export class DcTrack implements INodeType {
 						const itemId = this.getNodeParameter('itemIdDelete', i) as string;
 						const proceedOnWarning = this.getNodeParameter('proceedOnWarning', i) as boolean;
 						await this.helpers.httpRequest({
-						  method: 'DELETE',
-						  url: `${baseUrl}/api/v2/dcimoperations/items/${itemId}`,
-						  qs: {
-						    proceedonwarning: proceedOnWarning,
-						  },
-						  json: true,
-						  ...(auth && { auth }),
-						  headers: {
-						  ...authHeaders,
-						  },
+							method: 'DELETE',
+							url: `${baseUrl}/api/v2/dcimoperations/items/${itemId}`,
+							qs: {
+								proceedonwarning: proceedOnWarning,
+							},
+							json: true,
+							...(auth && { auth }),
+							headers: {
+								...authHeaders,
+							},
 						});
 						
 
@@ -1163,7 +1555,7 @@ export class DcTrack implements INodeType {
 								throw new NodeOperationError(
 									this.getNode(),
 									'Cord List must be valid JSON array',
-								);
+									);
 							}
 						} else {
 							body.cordList = [];
@@ -1176,7 +1568,7 @@ export class DcTrack implements INodeType {
 								throw new NodeOperationError(
 									this.getNode(),
 									'Hop List must be valid JSON array',
-								);
+									);
 							}
 						} else {
 							body.hopList = [];
@@ -1197,6 +1589,114 @@ export class DcTrack implements INodeType {
 						returnData.push(responseData as IDataObject);
 					}
 				}
+				// MODEL OPERATIONS
+				if (resource === 'model') {
+	// CREATE MODEL
+					if (operation === 'create') {
+						const modelName = this.getNodeParameter('modelName', i) as string;
+						const modelMake = this.getNodeParameter('modelMake', i) as string;
+						const modelClass = this.getNodeParameter('modelClass', i) as string;
+						const modelSubclass = this.getNodeParameter('modelSubclass', i) as string;
+						const formFactor = this.getNodeParameter('formFactor', i) as string;
+						const mounting = this.getNodeParameter('mounting', i) as string;
+						const ruHeight = this.getNodeParameter('ruHeight', i) as number;
+						const dimensionsCollection = this.getNodeParameter('dimensionsCollection', i, {}) as IDataObject;
+						const powerCollection = this.getNodeParameter('powerCollection', i, {}) as IDataObject;
+						const advancedFields = this.getNodeParameter('advancedFields', i, {}) as IDataObject;
+						const returnDetails = this.getNodeParameter('returnDetails', i) as boolean;
+						const proceedOnWarning = this.getNodeParameter('proceedOnWarning', i) as boolean;
+
+		// Parse JSON fields
+						const powerPortsJson = this.getNodeParameter('powerPortsJson', i, '[]') as string;
+						const dataPortsJson = this.getNodeParameter('dataPortsJson', i, '[]') as string;
+						const chassisFacesJson = this.getNodeParameter('chassisFacesJson', i, '[]') as string;
+						const aliasesJson = this.getNodeParameter('aliasesJson', i, '[]') as string;
+
+						let powerPorts: any[] = [];
+						let dataPorts: any[] = [];
+						let chassisFaces: any[] = [];
+						let aliases: any[] = [];
+
+						try {
+							if (powerPortsJson && powerPortsJson !== '[]') {
+								powerPorts = JSON.parse(powerPortsJson);
+							}
+						} catch (error) {
+							throw new NodeOperationError(this.getNode(), 'Power Ports must be valid JSON array');
+						}
+
+						try {
+							if (dataPortsJson && dataPortsJson !== '[]') {
+								dataPorts = JSON.parse(dataPortsJson);
+							}
+						} catch (error) {
+							throw new NodeOperationError(this.getNode(), 'Data Ports must be valid JSON array');
+						}
+
+						try {
+							if (chassisFacesJson && chassisFacesJson !== '[]') {
+								chassisFaces = JSON.parse(chassisFacesJson);
+							}
+						} catch (error) {
+							throw new NodeOperationError(this.getNode(), 'Chassis Faces must be valid JSON array');
+						}
+
+						try {
+							if (aliasesJson && aliasesJson !== '[]') {
+								aliases = JSON.parse(aliasesJson);
+							}
+						} catch (error) {
+							throw new NodeOperationError(this.getNode(), 'Aliases must be valid JSON array');
+						}
+
+		// Build request body
+						const body: IDataObject = {
+							model: modelName,
+							make: modelMake,
+							class: modelClass,
+							subclass: modelSubclass,
+							formFactor: formFactor,
+							mounting: mounting,
+							ruHeight: ruHeight,
+							...dimensionsCollection,
+							...powerCollection,
+							...advancedFields,
+						};
+
+		// Add arrays if provided
+						if (powerPorts.length > 0) {
+							body.powerPorts = powerPorts;
+						}
+						if (dataPorts.length > 0) {
+							body.dataPorts = dataPorts;
+						}
+						if (chassisFaces.length > 0) {
+							body.chassisFaces = chassisFaces;
+						}
+						if (aliases.length > 0) {
+							body.aliases = aliases;
+						}
+
+						const responseData = await this.helpers.httpRequest({
+							method: 'POST',
+							url: `${baseUrl}/api/v2/models`,
+							qs: {
+								returnDetails: returnDetails,
+								proceedOnWarning: proceedOnWarning,
+							},
+							body: body,
+							json: true,
+							...(auth && { auth }),
+							headers: {
+								'Content-Type': 'application/json',
+								...authHeaders,
+							},
+						});
+
+						returnData.push(responseData as IDataObject);
+					}
+				}
+
 			} catch (error) {
 				if (this.continueOnFail()) {
 					const errorMessage = error instanceof Error ? error.message : String(error);
